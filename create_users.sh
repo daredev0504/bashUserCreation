@@ -33,6 +33,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
    # Parse the username and groups
    USERNAME=$(echo $line | cut -d';' -f1)
    GROUPS=$(echo $line | cut -d';' -f2 | tr -d ' ')
+
    # Create the user and their personal group
    if id "$USERNAME" &>/dev/null; then
        log_message "User $USERNAME already exists. Skipping..."
@@ -47,6 +48,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
            log_message "Failed to create user $USERNAME."
            continue
        fi
+
        # Add user to additional groups
        if [ -n "$GROUPS" ]; then
            usermod -a -G $GROUPS $USERNAME
@@ -65,7 +67,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
        else
            log_message "Failed to set password for user $USERNAME."
        fi
-       
+
        # Store the password securely
        echo "$USERNAME:$PASSWORD" >> $PASSWORD_FILE
        # Set the correct permissions for the home directory
