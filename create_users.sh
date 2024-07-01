@@ -3,14 +3,23 @@
 INPUT_FILE="users.txt"
 LOG_FILE="/var/log/user_management.log"
 PASSWORD_FILE="/var/secure/user_passwords.txt"
+
+# Check if the file exists
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "File $INPUT_FILE not found."
+    exit 1
+fi
+
 # Create the log file and password file if they don't exist
 touch $LOG_FILE
 mkdir -p /var/secure
 touch $PASSWORD_FILE
+
 # Function to generate a random password
 generate_password() {
    tr -dc A-Za-z0-9 </dev/urandom | head -c 8
 }
+
 # Function to log messages
 log_message() {
    echo "$1" | tee -a $LOG_FILE
