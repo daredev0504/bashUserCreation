@@ -4,6 +4,7 @@
 This document provides detailed instructions and explanations for the `create_users.sh` script. This script is designed to automate the process of creating users and groups on a Linux system, set up their home directories with appropriate permissions, generate random passwords for the users, and log all actions. Additionally, it securely stores the generated passwords.
 ---
 ## Table of Contents
+0. [Join HNG](#JoinHNG)
 1. [Purpose](#purpose)
 2. [Input File Format](#input-file-format)
 3. [Script Functionality](#script-functionality)
@@ -104,3 +105,8 @@ Consider setting up log rotation for `/var/log/user_management.log` to prevent t
 ---
 ## Conclusion
 The `create_users.sh` script provides a robust and secure way to automate the creation of users and groups, set up home directories, and manage passwords. By following the usage instructions and considering security and logging best practices, you can efficiently manage user onboarding in a Linux environment.
+---
+## JoinHNG
+HNG is a company with a mission — we work with the very best techies to help them enhance their skills through our HNG internship program and build their network. We also work with clients to find them the best technical talent across the globe.
+https://hng.tech/premium
+https://hng.tech/internship,
