@@ -108,5 +108,5 @@ The `create_users.sh` script provides a robust and secure way to automate the cr
 ---
 ## JoinHNG
 HNG is a company with a mission — we work with the very best techies to help them enhance their skills through our HNG internship program and build their network. We also work with clients to find them the best technical talent across the globe.
-https://hng.tech/premium
-https://hng.tech/internship,
+- https://hng.tech/premium
+- https://hng.tech/internship,
