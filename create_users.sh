@@ -51,12 +51,21 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
        # Add user to additional groups
        if [ -n "$GROUPS" ]; then
-           usermod -a -G $GROUPS $USERNAME
-           if [ $? -eq 0 ]; then
-               log_message "User $USERNAME added to groups: $GROUPS."
-           else
-               log_message "Failed to add user $USERNAME to groups: $GROUPS."
-           fi
+           IFS=',' read -r -a GROUP_ARRAY <<< "$GROUPS"
+           for GROUP in "${GROUP_ARRAY[@]}"; do
+               # Create group if it doesn't exist
+               if ! getent group $GROUP > /dev/null 2>&1; then
+                   groupadd $GROUP
+                   log_message "Group $GROUP created."
+               fi
+               # Add user to the group
+               usermod -a -G $GROUP $USERNAME
+               if [ $? -eq 0 ]; then
+                   log_message "User $USERNAME added to group $GROUP."
+               else
+                   log_message "Failed to add user $USERNAME to group $GROUP."
+               fi
+           done
        fi
 
        # Generate a random password and set it for the user
