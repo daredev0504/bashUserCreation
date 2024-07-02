@@ -1,13 +1,16 @@
 #!/bin/bash
+
 # Check if running as root
 if [[ $UID -ne 0 ]]; then
    echo "This script must be run as root"
    exit 1
 fi
+
 # Define the input file, log file, and secure password file
 INPUT_FILE="$1"
 LOG_FILE="/var/log/user_management.log"
 PASSWORD_FILE="/var/secure/user_passwords.txt"
+
 # Check if the input file was provided and exists
 if [[ -z "$INPUT_FILE" ]]; then
    echo "No input file provided."
@@ -17,24 +20,30 @@ if [[ ! -f "$INPUT_FILE" ]]; then
    echo "File $INPUT_FILE not found."
    exit 1
 fi
+
 # Create the log file and password file if they don't exist
 touch "$LOG_FILE"
 mkdir -p /var/secure
 touch "$PASSWORD_FILE"
+
 # Function to generate a random password
 generate_password() {
   tr -dc A-Za-z0-9 </dev/urandom | head -c 12
 }
+
 # Function to log messages
 log_message() {
   echo "$1" | tee -a "$LOG_FILE"
 }
+
 log_message "Backing up created files"
 # Backup existing files
 cp "$PASSWORD_FILE" "${PASSWORD_FILE}.bak"
 cp "$LOG_FILE" "${LOG_FILE}.bak"
+
 # Set permissions for password file
 chmod 600 "$PASSWORD_FILE"
+
 # Read the input file line by line
 while IFS= read -r line || [[ -n "$line" ]]; do
   # Ignore whitespace
@@ -43,7 +52,9 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   [ -z "$line" ] && continue
   # Parse the username and groups
   USERNAME=$(echo "$line" | cut -d';' -f1)
+  log_message "$USERNAME"
   GROUPS=$(echo "$line" | cut -d';' -f2 | tr -d ' ')
+  log_message "$GROUPS"
   # Create the user and their personal group if they don't exist
   if id "$USERNAME" &>/dev/null; then
       log_message "User $USERNAME already exists. Skipping..."
@@ -73,6 +84,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
       chown "$USERNAME":"$USERNAME" /home/"$USERNAME"
       log_message "Home directory permissions set for user $USERNAME."
   fi
+
   # Add user to additional groups
   if [ -n "$GROUPS" ]; then
       IFS=',' read -r -a GROUP_ARRAY <<< "$GROUPS"
