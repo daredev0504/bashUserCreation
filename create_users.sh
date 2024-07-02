@@ -60,7 +60,7 @@ while IFS=';' read -r username groups || [[ -n "$username" ]]; do
       log_message "User $username already exists. Skipping..."
   else
       # Create personal groups for the user
-      groupsadd "$username"
+      groupadd "$username"
       # Create user with their personal groups
       useradd -m -s /bin/bash -g "$username" "$username"
       if [ $? -eq 0 ]; then
@@ -90,9 +90,9 @@ while IFS=';' read -r username groups || [[ -n "$username" ]]; do
       IFS=',' read -r -a groups_ARRAY <<< "$groups"
       for groups in "${groups_ARRAY[@]}"; do
           # Create groups if it doesn't exist
-          if ! getent groups "$groups" > /dev/null 2>&1; then
-              groupsadd "$groups"
-              log_message "groups $groups created."
+          if ! getent group "$groups" > /dev/null 2>&1; then
+              groupadd "$groups"
+              log_message "group $groups created."
           fi
           # Add user to the groups
           usermod -a -G "$groups" "$username"
