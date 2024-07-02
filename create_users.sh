@@ -44,7 +44,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   # Parse the username and groups
   USERNAME=$(echo "$line" | cut -d';' -f1)
   GROUPS=$(echo "$line" | cut -d';' -f2 | tr -d ' ')
-  # Create the user and their personal group
+  # Create the user and their personal group if they don't exist
   if id "$USERNAME" &>/dev/null; then
       log_message "User $USERNAME already exists. Skipping..."
   else
@@ -57,24 +57,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
       else
           log_message "Failed to create user $USERNAME."
           continue
-      fi
-      # Add user to additional groups
-      if [ -n "$GROUPS" ]; then
-          IFS=',' read -r -a GROUP_ARRAY <<< "$GROUPS"
-          for GROUP in "${GROUP_ARRAY[@]}"; do
-              # Create group if it doesn't exist
-              if ! getent group "$GROUP" > /dev/null 2>&1; then
-                  groupadd "$GROUP"
-                  log_message "Group $GROUP created."
-              fi
-              # Add user to the group
-              usermod -a -G "$GROUP" "$USERNAME"
-              if [ $? -eq 0 ]; then
-                  log_message "User $USERNAME added to group $GROUP."
-              else
-                  log_message "Failed to add user $USERNAME to group $GROUP."
-              fi
-          done
       fi
       # Generate a random password and set it for the user
       PASSWORD=$(generate_password)
@@ -90,6 +72,24 @@ while IFS= read -r line || [[ -n "$line" ]]; do
       chmod 700 /home/"$USERNAME"
       chown "$USERNAME":"$USERNAME" /home/"$USERNAME"
       log_message "Home directory permissions set for user $USERNAME."
+  fi
+  # Add user to additional groups
+  if [ -n "$GROUPS" ]; then
+      IFS=',' read -r -a GROUP_ARRAY <<< "$GROUPS"
+      for GROUP in "${GROUP_ARRAY[@]}"; do
+          # Create group if it doesn't exist
+          if ! getent group "$GROUP" > /dev/null 2>&1; then
+              groupadd "$GROUP"
+              log_message "Group $GROUP created."
+          fi
+          # Add user to the group
+          usermod -a -G "$GROUP" "$USERNAME"
+          if [ $? -eq 0 ]; then
+              log_message "User $USERNAME added to group $GROUP."
+          else
+              log_message "Failed to add user $USERNAME to group $GROUP."
+          fi
+      done
   fi
 done < "$INPUT_FILE"
 log_message "User creation process completed."
