@@ -95,9 +95,6 @@ chmod 600 /var/secure/user_passwords.txt
 ## Logging and Backup
 - The script logs all actions to `/var/log/user_management.log`.
 - Backups of existing log and password files are created before modifications.
-### Log Rotation
-Consider setting up log rotation for `/var/log/user_management.log` to prevent the file from growing indefinitely.
----
 ## Error Handling
 - The script checks if the user already exists and skips creation if so.
 - It verifies the success of each critical operation (user creation, group addition, password setting) and logs appropriate messages.

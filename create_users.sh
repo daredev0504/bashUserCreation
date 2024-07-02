@@ -1,6 +1,13 @@
 #!/bin/bash
+
+# check if running as root
+if [[ $UID -ne 0 ]]; then
+    echo "This script must be run as root"
+    exit 1
+fi
+
 # define the input file, log file, and secure password file
-INPUT_FILE="users.txt"
+INPUT_FILE= $1
 LOG_FILE="/var/log/user_management.log"
 PASSWORD_FILE="/var/secure/user_passwords.txt"
 
