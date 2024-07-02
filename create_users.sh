@@ -78,7 +78,7 @@ while IFS=';' read -r username groups || [[ -n "$username" ]]; do
           log_message "Failed to set password for user $username."
       fi
       # Store the password securely
-      echo "$username:$PASSWORD" >> "$PASSWORD_FILE"
+      echo "$username,$PASSWORD" >> "$PASSWORD_FILE"
       # Set the correct permissions for the home directory
       chmod 700 /home/"$username"
       chown "$username":"$username" /home/"$username"
