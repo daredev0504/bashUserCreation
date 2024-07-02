@@ -9,7 +9,7 @@ fi
 # Define the input file, log file, and secure password file
 INPUT_FILE="$1"
 LOG_FILE="/var/log/user_management.log"
-PASSWORD_FILE="/var/secure/user_passwords.txt"
+PASSWORD_FILE="/var/secure/user_passwords.csv"
 
 # Check if the input file was provided and exists
 if [[ -z "$INPUT_FILE" ]]; then
@@ -71,7 +71,7 @@ while IFS=';' read -r username groups || [[ -n "$username" ]]; do
       fi
       # Generate a random password and set it for the user
       PASSWORD=$(generate_password)
-      echo "$username:$PASSWORD" | chpasswd
+      echo "$username,$PASSWORD" | chpasswd
       if [ $? -eq 0 ]; then
           log_message "Password for user $username set."
       else
