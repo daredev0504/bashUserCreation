@@ -71,7 +71,7 @@ while IFS=';' read -r username groups || [[ -n "$username" ]]; do
       fi
       # Generate a random password and set it for the user
       PASSWORD=$(generate_password)
-      echo "$username,$PASSWORD" | chpasswd
+      echo "$username,$PASSWORD"
       if [ $? -eq 0 ]; then
           log_message "Password for user $username set."
       else
