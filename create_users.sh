@@ -54,12 +54,12 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   [ -z "$line" ] && continue
   
   # Parse the username and groups
-  USERNAME=$(echo "$line" | cut -d';' -f1)
-  GROUPS=$(echo "$line" | cut -d';' -f2 | tr -d ' ')
+  USERNAME=$(echo "$line" | cut -d';' -f1 | xargs)
+  GROUPS=$(echo "$line" | cut -d';' -f2 | xargs| tr -d ' ')
 
   echo "Username: $USERNAME"
   echo "Extracted groups: $GROUPS"
-  
+
   # Create the user and their personal group if they don't exist
   if id "$USERNAME" &>/dev/null; then
       log_message "User $USERNAME already exists. Skipping..."
