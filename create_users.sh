@@ -46,15 +46,20 @@ chmod 600 "$PASSWORD_FILE"
 
 # Read the input file line by line
 while IFS= read -r line || [[ -n "$line" ]]; do
-  # Ignore whitespace
+   # Ignore whitespace
   line=$(echo "$line" | xargs)
+  echo "Processing line: $line"
+  
   # Skip empty lines and comments
   [ -z "$line" ] && continue
+  
   # Parse the username and groups
   USERNAME=$(echo "$line" | cut -d';' -f1)
-  log_message "$USERNAME"
   GROUPS=$(echo "$line" | cut -d';' -f2 | tr -d ' ')
-  log_message "$GROUPS"
+
+  echo "Username: $USERNAME"
+  echo "Extracted groups: $GROUPS"
+  
   # Create the user and their personal group if they don't exist
   if id "$USERNAME" &>/dev/null; then
       log_message "User $USERNAME already exists. Skipping..."
