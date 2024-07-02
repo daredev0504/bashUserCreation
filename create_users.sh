@@ -45,66 +45,61 @@ cp "$LOG_FILE" "${LOG_FILE}.bak"
 chmod 600 "$PASSWORD_FILE"
 
 # Read the input file line by line
-while IFS= read -r line || [[ -n "$line" ]]; do
+while IFS=';' read -r username groups || [[ -n "$username" ]]; do
    # Ignore whitespace
-  line=$(echo "$line" | xargs)
-  echo "Processing line: $line"
-  
-  # Skip empty lines and comments
-  [ -z "$line" ] && continue
-  
+  username=$(echo "$username" | sed 's/ //g')
+  groups=$(echo "$groups" | sed 's/ //g')
+
+
   # Parse the username and groups
-  USERNAME=$(echo "$line" | cut -d';' -f1 | xargs)
-  GROUPS=$(echo "$line" | cut -d';' -f2 | xargs| tr -d ' ')
+  echo "$username"
+  echo "$groups"
 
-  echo "Username: $USERNAME"
-  echo "Extracted groups: $GROUPS"
-
-  # Create the user and their personal group if they don't exist
-  if id "$USERNAME" &>/dev/null; then
-      log_message "User $USERNAME already exists. Skipping..."
+  # Create the user and their personal groups if they don't exist
+  if id "$username" &>/dev/null; then
+      log_message "User $username already exists. Skipping..."
   else
-      # Create personal group for the user
-      groupadd "$USERNAME"
-      # Create user with their personal group
-      useradd -m -s /bin/bash -g "$USERNAME" "$USERNAME"
+      # Create personal groups for the user
+      groupsadd "$username"
+      # Create user with their personal groups
+      useradd -m -s /bin/bash -g "$username" "$username"
       if [ $? -eq 0 ]; then
-          log_message "User $USERNAME created with home directory."
+          log_message "User $username created with home directory."
       else
-          log_message "Failed to create user $USERNAME."
+          log_message "Failed to create user $username."
           continue
       fi
       # Generate a random password and set it for the user
       PASSWORD=$(generate_password)
-      echo "$USERNAME:$PASSWORD" | chpasswd
+      echo "$username:$PASSWORD" | chpasswd
       if [ $? -eq 0 ]; then
-          log_message "Password for user $USERNAME set."
+          log_message "Password for user $username set."
       else
-          log_message "Failed to set password for user $USERNAME."
+          log_message "Failed to set password for user $username."
       fi
       # Store the password securely
-      echo "$USERNAME:$PASSWORD" >> "$PASSWORD_FILE"
+      echo "$username:$PASSWORD" >> "$PASSWORD_FILE"
       # Set the correct permissions for the home directory
-      chmod 700 /home/"$USERNAME"
-      chown "$USERNAME":"$USERNAME" /home/"$USERNAME"
-      log_message "Home directory permissions set for user $USERNAME."
+      chmod 700 /home/"$username"
+      chown "$username":"$username" /home/"$username"
+      log_message "Home directory permissions set for user $username."
   fi
 
   # Add user to additional groups
-  if [ -n "$GROUPS" ]; then
-      IFS=',' read -r -a GROUP_ARRAY <<< "$GROUPS"
-      for GROUP in "${GROUP_ARRAY[@]}"; do
-          # Create group if it doesn't exist
-          if ! getent group "$GROUP" > /dev/null 2>&1; then
-              groupadd "$GROUP"
-              log_message "Group $GROUP created."
+  if [ -n "$groups" ]; then
+      IFS=',' read -r -a groups_ARRAY <<< "$groups"
+      for groups in "${groups_ARRAY[@]}"; do
+          # Create groups if it doesn't exist
+          if ! getent groups "$groups" > /dev/null 2>&1; then
+              groupsadd "$groups"
+              log_message "groups $groups created."
           fi
-          # Add user to the group
-          usermod -a -G "$GROUP" "$USERNAME"
+          # Add user to the groups
+          usermod -a -G "$groups" "$username"
           if [ $? -eq 0 ]; then
-              log_message "User $USERNAME added to group $GROUP."
+              log_message "User $username added to groups $groups."
           else
-              log_message "Failed to add user $USERNAME to group $GROUP."
+              log_message "Failed to add user $username to groups $groups."
           fi
       done
   fi
